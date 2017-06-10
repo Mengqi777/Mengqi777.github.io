@@ -1,1 +1,108 @@
-theme: jekyll-theme-minimal
+# Site settings
+title: 八千流程序员的日常
+SEOTitle: 孟琦的博客|MengqiPoet Blog
+header-img: img/home-bg.jpg
+email: memgqi@live.cn
+description: "常用Python,专攻Java后台，主修Embedding-Jetty+Jersey+Maven下restful风格的WebApp | 孟琦，Code & Write Lover,站在技术的眼光看世界| 这里是 @孟琦Poet 的个人博客，与你一起发现更大的世界。"
+keyword: "孟琦, 孟琦poet, MengqiPoet, Python, Java, Embedding-Jetty, Jetty, Jersey, restful,技术, 互联网, 程序员, 文字爱好者"
+url: "http://127.0.0.1:4000/" #"http://www.mengqipoet.cn"              # your host, for absolute URL
+baseurl: ""                             # for example, '/blog' if your blog hosted on 'host/blog'
+
+
+
+# SNS settings
+RSS: false
+weibo_username: tianxiadisichou
+zhihu_username: ss-aa-2
+github_username: Mengqi777
+linkedin_username: 琦-孟-21745212b
+jianshu_username: c0d6b78d8476
+
+
+
+# Build settings
+# from 2016, 'pygments' is unsupported on GitHub Pages. Use 'rouge' for highlighting instead.
+highlighter: rouge
+permalink: pretty
+paginate: 10
+exclude: ["less","node_modules","Gruntfile.js","package.json","README.md","README.zh.md"]
+anchorjs: true                          # if you want to customize anchor. check out line:181 of `post.html`
+
+
+# Gems
+# from PR#40, to support local preview for Jekyll 3.0
+gems: [jekyll-paginate]
+
+
+
+
+# Markdown settings
+# replace redcarpet to kramdown,
+# although redcarpet can auto highlight code, the lack of header-id make the catalog impossible, so I switch to kramdown
+# document: http://jekyllrb.com/docs/configuration/#kramdown
+markdown: kramdown
+kramdown:
+  input: GFM                            # use Github Flavored Markdown !important
+
+
+
+
+# Disqus settings
+disqus_username: qimeng
+
+# Netease setttings
+netease_comment: true
+
+# Duoshuo settings
+#duoshuo_username:
+## Share component is depend on Comment so we can NOT use share only.
+#duoshuo_share: true                     # set to false if you want to use Comment without Sharing
+
+
+
+
+
+
+
+
+
+# Analytics settings
+# Baidu Analytics
+# ba_track_id: "9bdd7af941f3b61cecfa39d27b3e0560"
+
+# Google Analytics
+ga_track_id: 'UA-100729934-1'            # Format: UA-xxxxxx-xx
+ga_domain: www.mengqipoet.cn
+
+
+
+
+# Sidebar settings
+sidebar: true                           # whether or not using Sidebar.
+sidebar-about-description: "Code & Write <br>文艺的程序员，双脚不离地的梦想家。"
+sidebar-avatar: /img/bio-photo.jpg      # use absolute URL, seeing it's used in both `/` and `/about/`
+
+
+
+# Featured Tags
+featured-tags: true                     # whether or not using Feature-Tags
+featured-condition-size: 1              # A tag will be featured if the size of it is more than this condition value
+
+
+
+# Progressive Web Apps
+chrome-tab-theme-color: "#000000"
+service-worker: true
+
+
+
+# Friends
+friends: [
+    {
+    #     title: "Su",
+    #     href: "http://su.gallery/"
+    # },{
+      }
+]
+
+

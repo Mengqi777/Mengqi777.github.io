@@ -1,0 +1,849 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="google-site-verification" content="xBT4GhYoi5qRD5tr338pgPM5OWHHIDR6mNg1a3euekI" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="常用Python,专攻Java后台，主修Embedding-Jetty+Jersey+Maven下restful风格的WebApp | 孟琦，Code & Write Lover,站在技术的眼光看世界| 这里是 @孟琦Poet 的个人博客，与你一起发现更大的世界。">
+    <meta name="keywords"  content="孟琦, 孟琦poet, MengqiPoet, Python, Java, Embedding-Jetty, Jetty, Jersey, restful,技术, 互联网, 程序员, 文字爱好者">
+    <meta name="theme-color" content="#000000">
+    <script>
+        var _hmt = _hmt || [];
+        (function() {
+            var hm = document.createElement("script");
+            hm.src = "https://hm.baidu.com/hm.js?9bdd7af941f3b61cecfa39d27b3e0560";
+            var s = document.getElementsByTagName("script")[0];
+            s.parentNode.insertBefore(hm, s);
+        })();
+    </script>
+    <title>Python3.5+PyQt5多线程+itchat实现微信防撤回桌面版 - 孟琦的博客|MengqiPoet Blog</title>
+
+    <!-- Web App Manifest -->
+    <link rel="manifest" href="/pwa/manifest.json">
+
+    <!-- Favicon -->
+    <link rel="shortcut icon" href="/img/favicon.ico">
+    
+    <!-- Canonical URL -->
+    <link rel="canonical" href="http://localhost:4000/2016/12/06/wechatunrecall/">
+
+    <!-- Bootstrap Core CSS -->
+    <link rel="stylesheet" href="/css/bootstrap.min.css">
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="/css/hux-blog.min.css">
+
+    <!-- Pygments Github CSS -->
+    <link rel="stylesheet" href="/css/syntax.css">
+
+    <!-- Custom Fonts -->
+    <!-- <link href="http://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css" rel="stylesheet" type="text/css"> -->
+    <!-- Hux change font-awesome CDN to qiniu -->
+    <link href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+
+
+    <!-- Hux Delete, sad but pending in China
+    <link href='http://fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic' rel='stylesheet' type='text/css'>
+    <link href='http://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800' rel='stylesheet' type='text/
+    css'>
+    -->
+
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+        <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <!-- ga & ba script hoook -->
+    <script></script>
+</head>
+
+
+<!-- hack iOS CSS :active style -->
+<body ontouchstart="">
+
+    <!-- Navigation -->
+<nav class="navbar navbar-default navbar-custom navbar-fixed-top">
+    <div class="container-fluid">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header page-scroll">
+            <button type="button" class="navbar-toggle">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/">八千流程序员的日常</a>
+        </div>
+
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <div id="huxblog_navbar">
+            <div class="navbar-collapse">
+                <ul class="nav navbar-nav navbar-right">
+                    <li>
+                        <a href="/">Home</a>
+                    </li>
+                    
+                    <li>
+                        <a href="/about/">About</a>
+                    </li>
+                    
+                    <li>
+                        <a href="/project/">Project</a>
+                    </li>
+                    
+                    <li>
+                        <a href="/tags/">Tags</a>
+                    </li>
+                    
+                </ul>
+            </div>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+    <!-- /.container -->
+</nav>
+<script>
+    // Drop Bootstarp low-performance Navbar
+    // Use customize navbar with high-quality material design animation
+    // in high-perf jank-free CSS3 implementation
+    var $body   = document.body;
+    var $toggle = document.querySelector('.navbar-toggle');
+    var $navbar = document.querySelector('#huxblog_navbar');
+    var $collapse = document.querySelector('.navbar-collapse');
+
+    var __HuxNav__ = {
+        close: function(){
+            $navbar.className = " ";
+            // wait until animation end.
+            setTimeout(function(){
+                // prevent frequently toggle
+                if($navbar.className.indexOf('in') < 0) {
+                    $collapse.style.height = "0px"
+                }
+            },400)
+        },
+        open: function(){
+            $collapse.style.height = "auto"
+            $navbar.className += " in";
+        }
+    }
+
+    // Bind Event
+    $toggle.addEventListener('click', function(e){
+        if ($navbar.className.indexOf('in') > 0) {
+            __HuxNav__.close()
+        }else{
+            __HuxNav__.open()
+        }
+    })
+
+    /**
+     * Since Fastclick is used to delegate 'touchstart' globally
+     * to hack 300ms delay in iOS by performing a fake 'click',
+     * Using 'e.stopPropagation' to stop 'touchstart' event from 
+     * $toggle/$collapse will break global delegation.
+     * 
+     * Instead, we use a 'e.target' filter to prevent handler
+     * added to document close HuxNav.  
+     *
+     * Also, we use 'click' instead of 'touchstart' as compromise
+     */
+    document.addEventListener('click', function(e){
+        if(e.target == $toggle) return;
+        if(e.target.className == 'icon-bar') return;
+        __HuxNav__.close();
+    })
+</script>
+
+
+    <!-- Image to hack wechat -->
+<!-- <img src="/img/icon_wechat.png" width="0" height="0"> -->
+<!-- <img src="/img/home-bg.jpg" width="0" height="0"> -->
+
+<!-- Post Header -->
+<style type="text/css">
+    header.intro-header{
+        position: relative;
+        background-image: url('/img/home-bg.jpg')
+    }
+
+    
+</style>
+<header class="intro-header" >
+    <div class="header-mask"></div>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <div class="post-heading">
+                    <div class="tags">
+                        
+                        <a class="tag" href="/tags/#Python" title="Python">Python</a>
+                        
+                        <a class="tag" href="/tags/#PyQt5" title="PyQt5">PyQt5</a>
+                        
+                        <a class="tag" href="/tags/#itchat" title="itchat">itchat</a>
+                        
+                        <a class="tag" href="/tags/#微信防撤回" title="微信防撤回">微信防撤回</a>
+                        
+                        <a class="tag" href="/tags/#多线程" title="多线程">多线程</a>
+                        
+                    </div>
+                    <h1>Python3.5+PyQt5多线程+itchat实现微信防撤回桌面版</h1>
+                    
+                    
+                    <h2 class="subheading"></h2>
+                    
+                    <span class="meta">Posted by 孟琦Poet on December 6, 2016</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- Post Content -->
+<article>
+    <div class="container">
+        <div class="row">
+
+    <!-- Post Container -->
+            <div class="
+                col-lg-8 col-lg-offset-2
+                col-md-10 col-md-offset-1
+                post-container">
+
+				<p>前几日在某乎看到有大神用itchat实现了<a href="https://zhuanlan.zhihu.com/p/25689314?utm_source=zhihu&amp;utm_medium=social">微信防撤回</a>功能，，觉得很有趣，看到下面评论很多人求桌面版，于是乎，手痒便利用清明节几天时间做了一个简陋的桌面程序。废话不多说，先上图位敬。</p>
+<h3 id="运行环境">运行环境</h3>
+<p>win10专业版64位系统1703创造者更新</p>
+<h3 id="开发环境">开发环境</h3>
+<ul>
+  <li>win10专业版64位系统1703创造者更新</li>
+  <li>Python3.5.2</li>
+  <li>PyCharm 2016</li>
+  <li>PyQt5.7</li>
+</ul>
+
+<h3 id="程序演示图">程序演示图</h3>
+
+<p><img src="http://upload-images.jianshu.io/upload_images/1826540-1d642ec5e4bb711a.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="简陋的程序界面" /></p>
+
+<p>当有新消息撤回时，会把撤回的消息发送到个人的文件传输助手中，并在桌面程序运行日志中显示，日志可以保存在电脑上。</p>
+
+<p><img src="http://upload-images.jianshu.io/upload_images/1826540-3622236b9b378d63.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="文件传输助手回送撤回消息" /></p>
+
+<p><img src="http://upload-images.jianshu.io/upload_images/1826540-7ec6dace74cb0304.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="电脑运行日志显示撤回消息" /></p>
+
+<p>目前只能能显示将消息以文字方式显示，图片和文件会保存在电脑上，可以在程序目录BackUp文件夹中查看。但是无法保存表情包，有时候会出现文件保存不及时的问题，不知道为什么。</p>
+
+<h1 id="下载地址">下载地址</h1>
+<p>链接：<a href="http://pan.baidu.com/s/1hsn5ZRe">网页链接</a> 密码：e8bt</p>
+
+<h1 id="wechatthread线程类">weChatThread线程类</h1>
+<p>之前一直不会python多线程，写这个程序的时候，发现不用多线程会陷入无限未响应状态。于是学了半天python多线程，但是在主函数里写的时候，发现一个问题，Ui主线程和工作线程没有分离，使用itchat等库的时候会堵塞主线程，换句话说<strong>PyQt中子线程不能操作GUI界面</strong>。之前写的多线程仍然属于Ui主线程，是其子线程，所以才造成未响应。
+既然知道问题了，那就查资料解决问题，后来，在几篇博客上找到了解决办法</p>
+<ul>
+  <li><a href="http://m.blog.csdn.net/article/details?id=46945011">PyQt 分离UI主线程与工作线程</a></li>
+  <li><a href="http://blog.chinaunix.net/uid-21961132-id-396744.html">python pyqt4 PyQT实现了使用QThread后台处理数据</a></li>
+  <li><a href="http://www.cnblogs.com/txw1958/archive/2011/12/22/Threading-Signals-Slots.html">多线程中的信号/槽</a></li>
+</ul>
+
+<p>然后仿照第一篇博客，重写了QThread类，并借鉴第三篇博客，学会了PyQt多线程中的信号/槽机制，用来传递参数。</p>
+
+<h3 id="下面贴代码">下面贴代码</h3>
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="c">#!/usr/bin/env python3</span>
+<span class="c"># -*- coding: utf-8 -*-</span>
+<span class="n">__author__</span> <span class="o">=</span> <span class="s">'memgq'</span>
+
+<span class="kn">from</span> <span class="nn">PyQt5.QtCore</span> <span class="kn">import</span> <span class="n">QThread</span><span class="p">,</span><span class="n">pyqtSignal</span>
+<span class="kn">import</span> <span class="nn">itchat</span>
+<span class="kn">import</span> <span class="nn">time</span><span class="o">,</span><span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">shutil</span>
+<span class="kn">import</span> <span class="nn">re</span>
+
+<span class="kn">from</span> <span class="nn">itchat.content</span> <span class="kn">import</span> <span class="o">*</span>
+
+<span class="k">class</span> <span class="nc">weChatWord</span><span class="p">(</span><span class="n">QThread</span><span class="p">):</span>
+    <span class="n">getMsgSignal</span> <span class="o">=</span> <span class="n">pyqtSignal</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span> <span class="c">#pyqtSignal()必须写在__init__前面，里面可接收的参数类型挺多的，str,list,dict都支持</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">parent</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">weChatWord</span><span class="p">,</span><span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">parent</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">msg_list</span><span class="o">=</span><span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">type_list</span><span class="o">=</span><span class="p">[</span><span class="s">'Picture'</span><span class="p">,</span><span class="s">'Recording'</span><span class="p">,</span> <span class="s">'Attachment'</span><span class="p">,</span><span class="s">'Video'</span><span class="p">]</span>
+
+
+
+    <span class="k">def</span> <span class="nf">clearList</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="s">'''
+        清空缓存消息和文件
+        :return: 
+        '''</span>
+        <span class="n">tm_now</span><span class="o">=</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+        <span class="n">len_list</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">msg_list</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">len_list</span><span class="o">&gt;</span><span class="mi">0</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">len_list</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">tm_now</span><span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">msg_list</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="s">'msg_time'</span><span class="p">]</span><span class="o">&gt;</span><span class="mi">121</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">msg_list</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="s">'msg_type'</span><span class="p">]</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">type_list</span><span class="p">:</span>
+                        <span class="k">try</span><span class="p">:</span>
+                            <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="s">".</span><span class="se">\\</span><span class="s">BackUp</span><span class="se">\\</span><span class="s">"</span><span class="o">+</span><span class="bp">self</span><span class="o">.</span><span class="n">msg_list</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="s">'msg_content'</span><span class="p">])</span>
+                        <span class="k">except</span> <span class="nb">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                            <span class="k">print</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+                        <span class="k">finally</span><span class="p">:</span>
+                            <span class="k">pass</span>
+                <span class="k">else</span><span class="p">:</span><span class="k">break</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">msg_list</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">msg_list</span><span class="p">[</span><span class="n">i</span><span class="p">:]</span>
+
+
+
+    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="s">'''
+        重写run()函数，
+        :return:
+        '''</span>
+        <span class="nd">@itchat.msg_register</span><span class="p">([</span><span class="n">TEXT</span><span class="p">,</span> <span class="n">PICTURE</span><span class="p">,</span> <span class="n">MAP</span><span class="p">,</span> <span class="n">CARD</span><span class="p">,</span> <span class="n">SHARING</span><span class="p">,</span> <span class="n">RECORDING</span><span class="p">,</span> <span class="n">ATTACHMENT</span><span class="p">,</span> <span class="n">VIDEO</span><span class="p">,</span> <span class="n">FRIENDS</span><span class="p">],</span> <span class="n">isFriendChat</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span>
+                      <span class="n">isGroupChat</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+        <span class="k">def</span> <span class="nf">getMsg</span><span class="p">(</span><span class="n">msg</span><span class="p">):</span>
+            <span class="s">'''
+            注册消息类型，并对不同类型的消息执行不用的操作
+            :param msg: 
+            :return: 
+            '''</span>
+            <span class="n">msg_dict</span><span class="o">=</span><span class="p">{}</span>
+            <span class="c"># pprint.pprint(msg)</span>
+            <span class="n">msg_id</span> <span class="o">=</span> <span class="n">msg</span><span class="p">[</span><span class="s">'MsgId'</span><span class="p">]</span>  <span class="c"># 消息ID</span>
+            <span class="n">msg_time</span> <span class="o">=</span> <span class="n">msg</span><span class="p">[</span><span class="s">'CreateTime'</span><span class="p">]</span>
+            <span class="n">msg_url</span><span class="o">=</span><span class="bp">None</span>
+            <span class="n">msg_group</span><span class="o">=</span><span class="s">""</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">itchat</span><span class="o">.</span><span class="n">search_friends</span><span class="p">(</span><span class="n">userName</span><span class="o">=</span><span class="n">msg</span><span class="p">[</span><span class="s">'FromUserName'</span><span class="p">])):</span>
+                <span class="k">if</span> <span class="n">itchat</span><span class="o">.</span><span class="n">search_friends</span><span class="p">(</span><span class="n">userName</span><span class="o">=</span><span class="n">msg</span><span class="p">[</span><span class="s">'FromUserName'</span><span class="p">])[</span><span class="s">'RemarkName'</span><span class="p">]:</span>
+                    <span class="n">msg_from</span> <span class="o">=</span> <span class="n">itchat</span><span class="o">.</span><span class="n">search_friends</span><span class="p">(</span><span class="n">userName</span><span class="o">=</span><span class="n">msg</span><span class="p">[</span><span class="s">'FromUserName'</span><span class="p">])[</span><span class="s">'RemarkName'</span><span class="p">]</span>  <span class="c"># 消息发送人备注</span>
+                <span class="k">elif</span> <span class="n">itchat</span><span class="o">.</span><span class="n">search_friends</span><span class="p">(</span><span class="n">userName</span><span class="o">=</span><span class="n">msg</span><span class="p">[</span><span class="s">'FromUserName'</span><span class="p">])[</span><span class="s">'NickName'</span><span class="p">]:</span>  <span class="c"># 消息发送人昵称</span>
+                    <span class="n">msg_from</span> <span class="o">=</span> <span class="n">itchat</span><span class="o">.</span><span class="n">search_friends</span><span class="p">(</span><span class="n">userName</span><span class="o">=</span><span class="n">msg</span><span class="p">[</span><span class="s">'FromUserName'</span><span class="p">])[</span><span class="s">'NickName'</span><span class="p">]</span>  <span class="c"># 消息发送人昵称</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">msg_from</span> <span class="o">=</span> <span class="s">r"读取发送消息好友失败"</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">msg_group</span> <span class="o">=</span> <span class="n">msg</span><span class="p">[</span><span class="s">'User'</span><span class="p">][</span><span class="s">'NickName'</span><span class="p">]</span>
+                <span class="n">msg_from</span> <span class="o">=</span> <span class="n">msg</span><span class="p">[</span><span class="s">'ActualNickName'</span><span class="p">]</span>
+            <span class="n">msg_type</span> <span class="o">=</span> <span class="n">msg</span><span class="p">[</span><span class="s">'Type'</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">msg_type</span> <span class="ow">in</span> <span class="p">[</span><span class="s">'Text'</span><span class="p">,</span> <span class="s">'Friends'</span><span class="p">,</span><span class="s">'Sharing'</span><span class="p">]:</span>
+                <span class="n">msg_content</span> <span class="o">=</span> <span class="n">msg</span><span class="p">[</span><span class="s">'Text'</span><span class="p">]</span>
+                <span class="n">msg_url</span> <span class="o">=</span> <span class="n">msg</span><span class="p">[</span><span class="s">'Url'</span><span class="p">]</span>
+            <span class="k">elif</span> <span class="n">msg_type</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">type_list</span><span class="p">:</span>
+                <span class="n">msg_content</span><span class="o">=</span><span class="n">msg</span><span class="p">[</span><span class="s">'FileName'</span><span class="p">]</span>
+                <span class="n">msg</span><span class="p">[</span><span class="s">'Text'</span><span class="p">](</span><span class="n">msg</span><span class="p">[</span><span class="s">'FileName'</span><span class="p">])</span>
+                <span class="n">shutil</span><span class="o">.</span><span class="n">move</span><span class="p">(</span><span class="n">msg_content</span><span class="p">,</span><span class="s">r'.</span><span class="se">\\</span><span class="s">BackUp</span><span class="se">\\</span><span class="s">'</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">msg</span><span class="p">[</span><span class="s">'Type'</span><span class="p">]</span> <span class="o">==</span> <span class="s">'Card'</span><span class="p">:</span>
+                <span class="n">msg_content</span> <span class="o">=</span> <span class="n">msg</span><span class="p">[</span><span class="s">'RecommendInfo'</span><span class="p">][</span><span class="s">'NickName'</span><span class="p">]</span> <span class="o">+</span> <span class="s">r" 的名片"</span>
+            <span class="k">elif</span> <span class="n">msg</span><span class="p">[</span><span class="s">'Type'</span><span class="p">]</span> <span class="o">==</span> <span class="s">'Map'</span><span class="p">:</span>
+                <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">location</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="s">"&lt;location x=</span><span class="se">\"</span><span class="s">(.*?)</span><span class="se">\"</span><span class="s"> y=</span><span class="se">\"</span><span class="s">(.*?)</span><span class="se">\"</span><span class="s">.*label=</span><span class="se">\"</span><span class="s">(.*?)</span><span class="se">\"</span><span class="s">.*"</span><span class="p">,</span>
+                                           <span class="n">msg</span><span class="p">[</span><span class="s">'OriContent'</span><span class="p">])</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span>
+                                                                    <span class="mi">2</span><span class="p">,</span>
+                                                                    <span class="mi">3</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">location</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+                    <span class="n">msg_content</span> <span class="o">=</span> <span class="s">r"纬度-&gt;"</span> <span class="o">+</span> <span class="n">x</span><span class="o">.</span><span class="n">__str__</span><span class="p">()</span> <span class="o">+</span> <span class="s">" 经度-&gt;"</span> <span class="o">+</span> <span class="n">y</span><span class="o">.</span><span class="n">__str__</span><span class="p">()</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">msg_content</span> <span class="o">=</span> <span class="s">r""</span> <span class="o">+</span> <span class="n">location</span>
+
+            <span class="n">msg_dict</span><span class="o">=</span><span class="p">{</span><span class="s">'msg_id'</span><span class="p">:</span><span class="n">msg_id</span><span class="p">,</span><span class="s">'msg_time'</span><span class="p">:</span><span class="n">msg_time</span><span class="p">,</span><span class="s">'msg_from'</span><span class="p">:</span><span class="n">msg_from</span><span class="p">,</span><span class="s">'msg_group'</span><span class="p">:</span><span class="n">msg_group</span><span class="p">,</span>
+                      <span class="s">'msg_content'</span><span class="p">:</span><span class="n">msg_content</span><span class="p">,</span><span class="s">'msg_type'</span><span class="p">:</span><span class="n">msg_type</span><span class="p">,</span><span class="s">'msg_url'</span><span class="p">:</span><span class="n">msg_url</span><span class="p">}</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">msg_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">msg_dict</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">clearList</span><span class="p">()</span>
+
+
+        <span class="nd">@itchat.msg_register</span><span class="p">([</span><span class="n">NOTE</span><span class="p">],</span><span class="n">isFriendChat</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">isGroupChat</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+        <span class="k">def</span> <span class="nf">recall</span><span class="p">(</span><span class="n">msg</span><span class="p">):</span>
+            <span class="s">'''
+            当消息类型为通知类的时候，查找消息内容是否为撤回消息，如果是，则执行撤回后的防撤回操作
+            :param msg: 
+            :return: 
+            '''</span>
+            <span class="c"># pprint.pprint(msg)</span>
+            <span class="n">msg_content</span><span class="o">=</span><span class="n">msg</span><span class="p">[</span><span class="s">'Content'</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="s">r'</span><span class="err">\</span><span class="s">&lt;replacemsg</span><span class="err">\</span><span class="s">&gt;</span><span class="err">\</span><span class="s">&lt;!</span><span class="err">\</span><span class="s">[CDATA</span><span class="err">\</span><span class="s">[(.*)撤回了一条消息</span><span class="err">\</span><span class="s">]</span><span class="err">\</span><span class="s">]</span><span class="err">\</span><span class="s">&gt;</span><span class="err">\</span><span class="s">&lt;</span><span class="err">\</span><span class="s">/replacemsg</span><span class="err">\</span><span class="s">&gt;'</span><span class="p">,</span><span class="n">msg_content</span><span class="p">):</span>
+                <span class="n">msg_note</span><span class="o">=</span><span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="s">r'</span><span class="err">\</span><span class="s">&lt;replacemsg</span><span class="err">\</span><span class="s">&gt;</span><span class="err">\</span><span class="s">&lt;!</span><span class="err">\</span><span class="s">[CDATA</span><span class="err">\</span><span class="s">[(.*)</span><span class="err">\</span><span class="s">]</span><span class="err">\</span><span class="s">]</span><span class="err">\</span><span class="s">&gt;</span><span class="err">\</span><span class="s">&lt;</span><span class="err">\</span><span class="s">/replacemsg</span><span class="err">\</span><span class="s">&gt;'</span><span class="p">,</span><span class="n">msg_content</span><span class="p">)</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+                <span class="n">old_msg_id</span><span class="o">=</span><span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="s">r'</span><span class="err">\</span><span class="s">&lt;msgid</span><span class="err">\</span><span class="s">&gt;([0-9]+)</span><span class="err">\</span><span class="s">&lt;/msgid</span><span class="err">\</span><span class="s">&gt;'</span><span class="p">,</span><span class="n">msg_content</span><span class="p">)</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">each</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">msg_list</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">each</span><span class="p">[</span><span class="s">'msg_id'</span><span class="p">]</span><span class="o">==</span><span class="n">old_msg_id</span><span class="p">:</span>
+                        <span class="n">timeArray</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">localtime</span><span class="p">()</span>
+                        <span class="n">otherStyleTime</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s">"</span><span class="si">%</span><span class="s">Y-</span><span class="si">%</span><span class="s">m-</span><span class="si">%</span><span class="s">d </span><span class="si">%</span><span class="s">H:</span><span class="si">%</span><span class="s">M:</span><span class="si">%</span><span class="s">S,"</span><span class="p">,</span> <span class="n">timeArray</span><span class="p">)</span>
+                        <span class="n">msg_note</span> <span class="o">=</span> <span class="n">msg_note</span> <span class="o">+</span> <span class="s">'，撤回内容为：'</span> <span class="o">+</span> <span class="n">each</span><span class="p">[</span><span class="s">'msg_content'</span><span class="p">]</span>
+                        <span class="k">if</span> <span class="n">each</span><span class="p">[</span><span class="s">'msg_group'</span><span class="p">]</span><span class="o">!=</span><span class="s">''</span><span class="p">:</span>
+                            <span class="n">msg_note</span> <span class="o">=</span> <span class="s">"群组（"</span><span class="o">+</span><span class="n">each</span><span class="p">[</span><span class="s">'msg_group'</span><span class="p">]</span><span class="o">+</span><span class="s">")中"</span><span class="o">+</span><span class="n">msg_note</span>
+                        <span class="n">msg_note</span><span class="o">=</span><span class="n">otherStyleTime</span><span class="o">+</span><span class="n">msg_note</span>
+                        <span class="n">itchat</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">msg_note</span><span class="p">,</span><span class="n">toUserName</span><span class="o">=</span><span class="s">'filehelper'</span><span class="p">)</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">msg_list</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">msg_list</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">each</span><span class="p">))</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">getMsgSignal</span><span class="o">.</span><span class="n">emit</span><span class="p">(</span><span class="n">msg_note</span><span class="p">)</span>
+                        <span class="k">break</span>
+
+        <span class="c">#创建BuckUp文件夹</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="s">".</span><span class="se">\\</span><span class="s">BackUp</span><span class="se">\\</span><span class="s">"</span><span class="p">):</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="s">'.</span><span class="se">\\</span><span class="s">BackUp</span><span class="se">\\</span><span class="s">'</span><span class="p">)</span>
+        <span class="c">#启动itchat()    </span>
+        <span class="n">itchat</span><span class="o">.</span><span class="n">auto_login</span><span class="p">(</span><span class="n">hotReload</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+        <span class="n">itchat</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+</code></pre>
+</div>
+
+<h1 id="主程序类">主程序类</h1>
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="k">class</span> <span class="nc">mainwindowapp</span><span class="p">(</span><span class="n">QMainWindow</span><span class="p">,</span><span class="n">wechatunrecall</span><span class="o">.</span><span class="n">Ui_MainWindow</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setupUi</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">createActions</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">createTrayIcon</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pushButton</span><span class="o">.</span><span class="n">clicked</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">saveLog</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pushButton_2</span><span class="o">.</span><span class="n">clicked</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">clearlog</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pushButton_3</span><span class="o">.</span><span class="n">clicked</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">houtai</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">trayIcon</span><span class="o">.</span><span class="n">activated</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">iconActivated</span><span class="p">)</span>
+        <span class="n">timeArray</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">localtime</span><span class="p">()</span>
+        <span class="n">otherStyleTime</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s">"</span><span class="si">%</span><span class="s">Y-</span><span class="si">%</span><span class="s">m-</span><span class="si">%</span><span class="s">d </span><span class="si">%</span><span class="s">H:</span><span class="si">%</span><span class="s">M:</span><span class="si">%</span><span class="s">S"</span><span class="p">,</span> <span class="n">timeArray</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setLog</span><span class="p">(</span><span class="n">otherStyleTime</span><span class="o">+</span><span class="s">"，程序运行时，请用手机扫描弹出的二维码进行登录，并确保电脑上自带的Window照片查"</span>
+                                   <span class="s">"看器可用，撤回的图片文件等可下载附件连同运行日志保存在程序目录下BackUp文件夹中。</span><span class="se">\n</span><span class="s">"</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">weChatBigWord</span><span class="p">()</span>
+
+
+    <span class="k">def</span> <span class="nf">saveLog</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="s">'''
+        保存日志
+        :return: 
+        '''</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="s">".</span><span class="se">\\</span><span class="s">BackUp</span><span class="se">\\</span><span class="s">"</span><span class="p">):</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="s">".</span><span class="se">\\</span><span class="s">BackUp</span><span class="se">\\</span><span class="s">"</span><span class="p">)</span>
+        <span class="n">timeArray</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">localtime</span><span class="p">()</span>
+        <span class="n">otherStyleTime</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s">"</span><span class="si">%</span><span class="s">Y-</span><span class="si">%</span><span class="s">m-</span><span class="si">%</span><span class="s">d</span><span class="si">%</span><span class="s">H</span><span class="si">%</span><span class="s">M</span><span class="si">%</span><span class="s">S"</span><span class="p">,</span> <span class="n">timeArray</span><span class="p">)</span>
+        <span class="n">text</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">textBrowser</span><span class="o">.</span><span class="n">toPlainText</span><span class="p">()</span>
+        <span class="n">logPath</span><span class="o">=</span><span class="s">".</span><span class="se">\\</span><span class="s">BackUp</span><span class="se">\\</span><span class="s">"</span><span class="o">+</span><span class="n">otherStyleTime</span><span class="o">+</span><span class="s">'.txt'</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">logPath</span><span class="p">,</span><span class="s">'w'</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">setLog</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">msg</span><span class="p">):</span>
+        <span class="s">'''
+        往运行日志窗口写撤回消息的内容
+        :param msg: 
+        :return: 
+        '''</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">textBrowser</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">createTrayIcon</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="s">'''
+        创建托盘图标，可以让程序最小化到windows托盘中运行
+        :return: 
+        '''</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">trayIconMenu</span><span class="o">=</span><span class="n">QMenu</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">trayIconMenu</span><span class="o">.</span><span class="n">addAction</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">restoreAction</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">trayIconMenu</span><span class="o">.</span><span class="n">addSeparator</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">trayIconMenu</span><span class="o">.</span><span class="n">addAction</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">quitAction</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">trayIcon</span><span class="o">=</span><span class="n">QSystemTrayIcon</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">trayIcon</span><span class="o">.</span><span class="n">setContextMenu</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">trayIconMenu</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">trayIcon</span><span class="o">.</span><span class="n">setIcon</span><span class="p">(</span><span class="n">QIcon</span><span class="p">(</span><span class="s">'./media/images/maincion.png'</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setWindowIcon</span><span class="p">(</span><span class="n">QIcon</span><span class="p">(</span><span class="s">'./media/images/maincion.png'</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">trayIcon</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">createActions</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="s">'''
+        为托盘图标添加功能
+        :return: 
+        '''</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">restoreAction</span><span class="o">=</span><span class="n">QAction</span><span class="p">(</span><span class="s">"恢复"</span><span class="p">,</span><span class="bp">self</span><span class="p">,</span><span class="n">triggered</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">showNormal</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">quitAction</span><span class="o">=</span><span class="n">QAction</span><span class="p">(</span><span class="s">"退出"</span><span class="p">,</span><span class="bp">self</span><span class="p">,</span><span class="n">triggered</span><span class="o">=</span><span class="n">QApplication</span><span class="o">.</span><span class="n">instance</span><span class="p">()</span><span class="o">.</span><span class="n">quit</span><span class="p">)</span>
+
+
+    <span class="k">def</span> <span class="nf">iconActivated</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">reason</span><span class="p">):</span>
+        <span class="s">'''
+        激活托盘功能
+        :param reason: 
+        :return: 
+        '''</span>
+        <span class="k">if</span> <span class="n">reason</span> <span class="ow">in</span> <span class="p">(</span><span class="n">QSystemTrayIcon</span><span class="o">.</span><span class="n">Trigger</span><span class="p">,</span> <span class="n">QSystemTrayIcon</span><span class="o">.</span><span class="n">DoubleClick</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">showNormal</span><span class="p">()</span>
+
+
+    <span class="k">def</span> <span class="nf">houtai</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">hide</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">clearlog</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">textBrowser</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
+
+
+    <span class="k">def</span> <span class="nf">weChatBigWord</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="s">'''
+        weChatThread类实例化，并启动线程
+        :return: 
+        '''</span>
+        <span class="kn">from</span> <span class="nn">weChatThread</span> <span class="kn">import</span> <span class="n">weChatWord</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">wcBWThread</span><span class="o">=</span><span class="n">weChatWord</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">wcBWThread</span><span class="o">.</span><span class="n">getMsgSignal</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">setLog</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">wcBWThread</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+</code></pre>
+</div>
+
+<p>#程序界面
+程序界面仍然由Qtdesigner设计</p>
+
+<p>#后记
+第一次尝试多线程编程，并且具体应用到实际项目中去，收获良多。
+最近打算学点Django，有没有推荐教程？</p>
+
+
+                <hr style="visibility: hidden;">
+
+                
+
+
+                <ul class="pager">
+                    
+                    <li class="previous">
+                        <a href="/2016/12/06/socketMIME/" data-toggle="tooltip" data-placement="top" title="Python Socket编程：利用SMTP发送MIME协议邮件">
+                        Previous<br>
+                        <span>Python Socket编程：利用SMTP发送MIME协议邮件</span>
+                        </a>
+                    </li>
+                    
+                    
+                </ul>
+
+
+                
+
+                
+                <!-- disqus 评论框 start -->
+                <div class="comment">
+                    <div id="disqus_thread" class="disqus-thread"></div>
+                </div>
+                <!-- disqus 评论框 end -->
+                
+
+                
+                <!-- 网易云跟帖 评论框 start -->
+                <div id="cloud-tie-wrapper" class="cloud-tie-wrapper"></div>
+                <!-- 网易云跟帖 评论框 end -->
+                
+            </div>  
+
+    <!-- Side Catalog Container -->
+        
+
+    <!-- Sidebar Container -->
+            <div class="
+                col-lg-8 col-lg-offset-2
+                col-md-10 col-md-offset-1
+                sidebar-container">
+
+                <!-- Featured Tags -->
+                
+                <section>
+                    <hr class="hidden-sm hidden-xs">
+                    <h5><a href="/tags/">FEATURED TAGS</a></h5>
+                    <div class="tags">
+        				
+                            
+                				<a href="/tags/#Python" title="Python" rel="3">
+                                    Python
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#PyQt5" title="PyQt5" rel="2">
+                                    PyQt5
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+        			</div>
+                </section>
+                
+
+                <!-- Friends Blog -->
+                
+                <hr>
+                <h5>FRIENDS</h5>
+                <ul class="list-inline">
+                    
+                        <li><a href=""></a></li>
+                    
+                </ul>
+                
+            </div>
+        </div>
+    </div>
+</article>
+
+
+
+
+
+<!-- 网易云跟帖JS代码 start -->
+<script src="https://img1.cache.netease.com/f2e/tie/yun/sdk/loader.js"></script>
+<script>
+  var cloudTieConfig = {
+    url: document.location.href, 
+    sourceId: "",
+    productKey: "de25fc98a6fe48b3bc8a7ae765da99a0",
+    target: "cloud-tie-wrapper"
+  };
+  var yunManualLoad = true;
+  Tie.loader("aHR0cHM6Ly9hcGkuZ2VudGllLjE2My5jb20vcGMvbGl2ZXNjcmlwdC5odG1s", true);
+</script>
+<!-- 网易云跟帖JS代码 end -->
+
+
+
+
+<!-- disqus 公共JS代码 start (一个网页只需插入一次) -->
+<script type="text/javascript">
+    /* * * CONFIGURATION VARIABLES * * */
+    var disqus_shortname = "qimeng";
+    var disqus_identifier = "/2016/12/06/wechatunrecall";
+    var disqus_url = "http://localhost:4000/2016/12/06/wechatunrecall/";
+
+    (function() {
+        var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+        dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+</script>
+<!-- disqus 公共JS代码 end -->
+
+
+
+
+<!-- async load function -->
+<script>
+    function async(u, c) {
+      var d = document, t = 'script',
+          o = d.createElement(t),
+          s = d.getElementsByTagName(t)[0];
+      o.src = u;
+      if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+      s.parentNode.insertBefore(o, s);
+    }
+</script>
+<!-- anchor-js, Doc:http://bryanbraun.github.io/anchorjs/ -->
+<script>
+    async("//cdnjs.cloudflare.com/ajax/libs/anchor-js/1.1.1/anchor.min.js",function(){
+        anchors.options = {
+          visible: 'always',
+          placement: 'right',
+          icon: '#'
+        };
+        anchors.add().remove('.intro-header h1').remove('.subheading').remove('.sidebar-container h5');
+    })
+</script>
+<style>
+    /* place left on bigger screen */
+    @media all and (min-width: 800px) {
+        .anchorjs-link{
+            position: absolute;
+            left: -0.75em;
+            font-size: 1.1em;
+            margin-top : -0.1em;
+        }
+    }
+</style>
+
+
+    <!-- Footer -->
+<footer>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <ul class="list-inline text-center">
+                    
+                    
+                    
+                    <li>
+                        <a href="http://www.jianshu.com/u/c0d6b78d8476">
+                            <span class="fa-stack fa-lg">
+                                <i class="fa fa-circle fa-stack-2x"></i>
+                                <i class="fa  fa-stack-1x fa-inverse">简</i>
+                            </span>
+                        </a>
+                    </li>
+                    
+
+                    <!-- add Weibo, Zhihu by Hux, add target = "_blank" to <a> by Hux -->
+                    
+                    <li>
+                        <a target="_blank" href="https://www.zhihu.com/people/ss-aa-2">
+                            <span class="fa-stack fa-lg">
+                                <i class="fa fa-circle fa-stack-2x"></i>
+                                <i class="fa  fa-stack-1x fa-inverse">知</i>
+                            </span>
+                        </a>
+                    </li>
+                    
+                    
+                    <li>
+                        <a target="_blank" href="http://weibo.com/tianxiadisichou">
+                            <span class="fa-stack fa-lg">
+                                <i class="fa fa-circle fa-stack-2x"></i>
+                                <i class="fa fa-weibo fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+                    
+
+
+                    
+                    
+                    <li>
+                        <a target="_blank" href="https://github.com/Mengqi777">
+                            <span class="fa-stack fa-lg">
+                                <i class="fa fa-circle fa-stack-2x"></i>
+                                <i class="fa fa-github fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+                    
+                    
+                    <li>
+                        <a target="_blank" href="https://www.linkedin.com/in/琦-孟-21745212b">
+                            <span class="fa-stack fa-lg">
+                                <i class="fa fa-circle fa-stack-2x"></i>
+                                <i class="fa fa-linkedin fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+                    
+                </ul>
+                <p class="copyright text-muted">
+                    Copyright &copy; 八千流程序员的日常 2017
+                    <br>
+                    <a href="http://www.miitbeian.gov.cn" style="color:#939393; display:inline-block;text-decoration:none;">黑ICP备17003179号-1</a>&nbsp;|
+                    <a target="_blank" href="http://www.beian.gov.cn/portal/registerSystemInfo?recordcode=23010302000227" style="color:#939393; display:inline-block;text-decoration:none;height:20px;line-height:20px;">
+                        <img src="/img/beian.png" style="float:left;"/>&nbsp;黑公网安备 23010302000227号</a>
+
+                </p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<!-- jQuery -->
+<script src="/js/jquery.min.js "></script>
+
+<!-- Bootstrap Core JavaScript -->
+<script src="/js/bootstrap.min.js "></script>
+
+<!-- Custom Theme JavaScript -->
+<script src="/js/hux-blog.min.js "></script>
+
+<!-- Service Worker -->
+
+<script type="text/javascript">
+    if(navigator.serviceWorker){
+        // For security reasons, a service worker can only control the pages that are in the same directory level or below it. That's why we put sw.js at ROOT level.
+        navigator.serviceWorker
+            .register('/sw.js')
+            .then((registration) => {console.log('Service Worker Registered. ', registration)})
+            .catch((error) => {console.log('ServiceWorker registration failed: ', error)})
+    }
+</script>
+
+
+
+<!-- async load function -->
+<script>
+    function async(u, c) {
+      var d = document, t = 'script',
+          o = d.createElement(t),
+          s = d.getElementsByTagName(t)[0];
+      o.src = u;
+      if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+      s.parentNode.insertBefore(o, s);
+    }
+</script>
+
+<!-- 
+     Because of the native support for backtick-style fenced code blocks 
+     right within the Markdown is landed in Github Pages, 
+     From V1.6, There is no need for Highlight.js, 
+     so Huxblog drops it officially.
+
+     - https://github.com/blog/2100-github-pages-now-faster-and-simpler-with-jekyll-3-0  
+     - https://help.github.com/articles/creating-and-highlighting-code-blocks/ 
+     - https://github.com/jneen/rouge/wiki/list-of-supported-languages-and-lexers   
+-->
+<!--
+    <script>
+        async("http://cdn.bootcss.com/highlight.js/8.6/highlight.min.js", function(){
+            hljs.initHighlightingOnLoad();
+        })
+    </script>
+    <link href="http://cdn.bootcss.com/highlight.js/8.6/styles/github.min.css" rel="stylesheet">
+-->
+
+
+<!-- jquery.tagcloud.js -->
+<script>
+    // only load tagcloud.js in tag.html
+    if($('#tag_cloud').length !== 0){
+        async('/js/jquery.tagcloud.js',function(){
+            $.fn.tagcloud.defaults = {
+                //size: {start: 1, end: 1, unit: 'em'},
+                color: {start: '#bbbbee', end: '#0085a1'},
+            };
+            $('#tag_cloud a').tagcloud();
+        })
+    }
+</script>
+
+<!--fastClick.js -->
+<script>
+    async("//cdnjs.cloudflare.com/ajax/libs/fastclick/1.0.6/fastclick.min.js", function(){
+        var $nav = document.querySelector("nav");
+        if($nav) FastClick.attach($nav);
+    })
+</script>
+
+
+<!-- Google Analytics -->
+
+<script>
+    // dynamic User by Hux
+    var _gaId = 'UA-100729934-1';
+    var _gaDomain = 'www.mengqipoet.cn';
+
+    // Originial
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+    ga('create', _gaId, _gaDomain);
+    ga('send', 'pageview');
+</script>
+
+
+
+<!-- Baidu Tongji -->
+
+
+
+
+<!-- Side Catalog -->
+
+
+
+
+
+<!-- Image to hack wechat -->
+<img src="/img/icon_wechat.png" width="0" height="0" />
+<!-- Migrate from head to bottom, no longer block render and still work -->
+
+</body>
+
+</html>
