@@ -99,6 +99,8 @@ service-worker: true
 # Friends
 friends: [
     {
+    title: "xfmao",
+    href: "https://github.com/xfmao"
     #     title: "Su",
     #     href: "http://su.gallery/"
     # },{
