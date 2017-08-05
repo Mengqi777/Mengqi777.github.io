@@ -3,7 +3,7 @@ title: 八千流程序员的日常
 SEOTitle: 孟琦的博客|MengqiPoet Blog
 header-img: img/home-bg.jpg
 email: memgqi@live.cn
-description: "常用Python,专攻Java后台，主修Embedding-Jetty+Jersey+Maven下restful风格的WebApp | 孟琦，Code & Write Lover,站在技术的眼光看世界| 这里是 @孟琦Poet 的个人博客，与你一起发现更大的世界。"
+description: "常用Python,专攻Java后台，主修Embedding-Jetty+Jersey+Maven下restful风格的WebApp | 孟琦，Code & Write 站在技术的眼光看世界| 这里是 @孟琦Poet 的个人博客，与你一起发现更大的世界。"
 keyword: "孟琦, 孟琦poet, MengqiPoet, Python, Java, Embedding-Jetty, Jetty, Jersey, restful,技术, 互联网, 程序员, 文字爱好者"
 url: "http://127.0.0.1:4000/" #"http://www.mengqipoet.cn"              # your host, for absolute URL
 baseurl: ""                             # for example, '/blog' if your blog hosted on 'host/blog'
