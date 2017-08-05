@@ -1,6 +1,6 @@
 ---
 layout:     post
-title:      "IDEA+Maven+Embedded Jetty+Jersey构建Restful服务并打包成jar包发布(一)"
+title:      "IDEA+Maven+Embedded Jetty+Jersey构建Restful服务并打包成jar包发布"
 date:  2017-08-05 12:00:00
 author:     "孟琦Poet"
 tags:
