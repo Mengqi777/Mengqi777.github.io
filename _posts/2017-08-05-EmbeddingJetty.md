@@ -1,21 +1,21 @@
 ---
 layout:     post
 title:      "使用IDEA+Maven+Embedded Jetty+Jersey构建Restful Web Service并打包成一个jar包发布"
-date:  2016-08-05 12:00:00
+date:  2017-08-05 12:00:00
 author:     "孟琦Poet"
 tags:
     - Jetty
     - Java
 ---
 
-#一、简要介绍
+## 一、简要介绍
 最近做的项目用到了嵌入式Jetty当服务器，并用Jersey来构建Restful api，看了老师的项目文件发现还有pom.xml文件，才知道Maven。
 但因为不是一个组的老师，而且那个老师貌似前端精通的多一点，Maven什么的也不是很了解，从老师那里学的东西也不是很多。
 因为项目相关，最后还是自己Google各种资料，一点一滴从零开始学习。国内关于嵌入式Jetty的资料真的少，大部分都是翻译官方文档，
 很难找到完整的案例。因此，想在这里把自己学到的关于Embedded Jetty、Jersy的知识记录下来，希望提能给想入坑的提供点经验，少走点弯路。
 
 
-#二、环境搭建
+## 二、环境搭建
 
 文中介绍的东西都是基于**JDK1.8**、**Maven3**、**IDEA2017.2**，*Jetty*版本为**9.4.3.v20170317**，*Jersey*版本为**2.25.1**。
 
