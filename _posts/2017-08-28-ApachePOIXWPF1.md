@@ -8,7 +8,7 @@ tags:
     - Java
 ---
 
-#说点废话
+# 说点废话
 ---
 前段时间使用Jacob做Word生成，Jacob调用COM组件生成Word文档，可以实现很多强大的功能，甚至能从无到有生成一个全新的格式全面的文档。但是，局限的是需要熟练地掌握VBA，学习成本太高，而且Jacob配置复杂，平台依赖性太大，只能运行在Windows系统上。故来研究下新的工具——Apache POI。
 
@@ -19,7 +19,7 @@ tags:
 在进行替换之前，先讲一下一个`.docx`文件实质上是用XML格式存储起来的数据结构，POI就是对这个XML数据结构进行操作。
 
 
-#POI小贴士
+# POI小贴士
 ---
 本文所用POI版本为**3.16**，Maven坐标为
 ```
@@ -32,7 +32,7 @@ tags:
 如果从官网下载的，主要jar包如下所示
 
 ![POI中jar包](http://upload-images.jianshu.io/upload_images/1826540-2f73bf3f89d663f2.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
-##注意
+## 注意
 * 请将**poi-ooxml-schemas-3.16.jar**，替换为**ooxml-schemas-1.1.jar**，Maven坐标
 ```
 <dependency>
@@ -74,7 +74,7 @@ tags:
 ```
 这是因为POI自带的jar包是精简版，有些底层的东西都不见了，**ooxml-schemas-1.1.jar**大小将近20M，可以完全满足生产需求。
 
-#基本操作
+# 基本操作
 ---
 * 1、打开、关闭、另存为`.docx`文档
 ```
@@ -93,7 +93,7 @@ try {
 ``` 
 其中`document`不关闭，因为关闭后对`document`执行的操作会被保存到原文件。
 
-#段落中的文本替换
+# 段落中的文本替换
 ---
 以文档中每一段为最小单元进行标记文本替换
 ```
@@ -239,7 +239,7 @@ public static Map<String, Integer> findSubRunPosInParagraph(XWPFParagraph xwpfPa
 }
 
 ```
-#对表格中标记文本的替换
+# 对表格中标记文本的替换
 ---
 有些标记做在表格单元格中，每个单元格中的内容都是一个普通的段落，所以，我们只需遍历出所有的单元格，然后遍历出每个单元格中的所有段落，再调用以上方法进行标记文本替换即可。代码如下
 ```
@@ -304,7 +304,7 @@ public static void replaceInCell(XWPFTableCell cell, Map<String, String> params)
     replaceInAllParagraphs(cellParagraphs, params);
 }
 ```
-#调用方法测试
+# 调用方法测试
 ```
 public static void main(String[] args) throws IOException, InvalidFormatException {
     // TODO Auto-generated method stub
