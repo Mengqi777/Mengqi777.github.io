@@ -2,7 +2,16 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="32e7ead6-6ef3-4e48-928b-53403283fead" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/_includes/footer.html" beforeDir="false" afterPath="$PROJECT_DIR$/_includes/footer.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/_site/2016/10/11/wordfrequence/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/_site/2016/10/11/wordfrequence/index.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/_site/2016/12/06/socketMIME/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/_site/2016/12/06/socketMIME/index.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/_site/2016/12/06/wechatunrecall/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/_site/2016/12/06/wechatunrecall/index.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/_site/404.html" beforeDir="false" afterPath="$PROJECT_DIR$/_site/404.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/_site/about/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/_site/about/index.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/_site/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/_site/index.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/_site/offline.html" beforeDir="false" afterPath="$PROJECT_DIR$/_site/offline.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/_site/project/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/_site/project/index.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/_site/tags/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/_site/tags/index.html" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -34,11 +43,33 @@
       <option name="presentableId" value="Default" />
       <updated>1656035253391</updated>
       <workItem from="1656035255000" duration="2926000" />
-      <workItem from="1656473446332" duration="726000" />
+      <workItem from="1656473446332" duration="1128000" />
     </task>
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
+  </component>
+  <component name="Vcs.Log.History.Properties">
+    <option name="COLUMN_ID_ORDER">
+      <list>
+        <option value="Default.Root" />
+        <option value="Default.Author" />
+        <option value="Default.Date" />
+        <option value="Default.Subject" />
+        <option value="Space.CommitStatus" />
+      </list>
+    </option>
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
   </component>
 </project>
